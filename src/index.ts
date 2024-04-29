@@ -22,17 +22,21 @@ import { file_info } from "@/utils/fs";
 import { loop_request } from "@/utils/index";
 import { Result, Unpacked } from "@/types/index";
 import { LocalFileDriveClient } from "./domains/clients/local";
+import { parse_argv } from "./utils/server";
+import { ApplicationState } from "./store/types";
 
 config();
 const ROOT_DIR = process.env.ROOT_DIR;
-
 async function main() {
   if (!ROOT_DIR) {
     console.log("缺少环境变量 ROOT_DIR");
     return;
   }
-  const application = new Application({
+  const application = new Application<ApplicationState>({
     root_path: ROOT_DIR,
+    // @ts-ignore
+    env: process.env,
+    args: parse_argv<{ port: number }>(process.argv.slice(2)),
   });
   const server = new Hono<{ Bindings: { store: typeof application.store; user: User }; Variables: {} }>();
 
@@ -535,7 +539,15 @@ async function main() {
   serve(
     {
       fetch: server.fetch,
-      port: 3010,
+      port: (() => {
+        if (application.env.PORT) {
+          return Number(application.env.PORT);
+        }
+        if (application.args.port) {
+          return application.args.port;
+        }
+        return 3010;
+      })(),
     },
     (info) => {
       const { address, port } = info;

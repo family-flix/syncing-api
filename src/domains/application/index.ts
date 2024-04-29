@@ -6,12 +6,13 @@ import { DatabaseStore } from "@/domains/store/index";
 import { DataStore } from "@/domains/store/types";
 import { ensure } from "@/utils/fs";
 
-export class Application {
+export class Application<T extends { root_path: string; env?: Record<string, string>; args?: Record<string, any> }> {
   root_path: string;
   database_path: string;
   database_dir: string;
   assets_dir: string;
-  env: Record<string, string> = {};
+  env: T["env"] = {};
+  args: T["args"] = {};
   timer: null | NodeJS.Timer = null;
   listeners: {
     handler: Function;
@@ -21,10 +22,11 @@ export class Application {
 
   store: DataStore;
 
-  constructor(options: { root_path: string; env?: Record<string, string> }) {
-    const { root_path, env = {} } = options;
+  constructor(options: T) {
+    const { root_path, env = {}, args = {} } = options;
     this.root_path = root_path;
     this.env = env;
+    this.args = args;
 
     const database_dir = path.join(root_path, "data");
     const database_name = "data.db?connection_limit=1";

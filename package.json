@@ -1,14 +1,13 @@
 {
   "name": "@family-flix/syncing-api",
-  "version": "2.2.1",
+  "version": "0.0.1",
   "private": true,
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "start": "next start",
-    "build": "yarn esbuild src/index.ts --platform=node --target=node12 --bundle --minify --outfile=dist/server.js",
+    "start": "node dist/server.js --port 8001",
+    "build": "esbuild src/index.ts --platform=node --target=node12 --bundle --minify --outfile=dist/server.js",
     "check": "tsc --noEmit",
     "schedule": "vite-node src/schedule/index.ts",
-    "lint": "next lint",
     "test": "vitest run"
   },
   "pkg": {
