@@ -1,0 +1,67 @@
+{
+  "name": "@family-flix/syncing-api",
+  "version": "2.2.1",
+  "private": true,
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "next start",
+    "build": "yarn esbuild src/index.ts --platform=node --target=node12 --bundle --minify --outfile=dist/server.js",
+    "check": "tsc --noEmit",
+    "schedule": "vite-node src/schedule/index.ts",
+    "lint": "next lint",
+    "test": "vitest run"
+  },
+  "pkg": {
+    "assets": [
+      "package.json",
+      "production/**/*",
+      "public/**/*",
+      "prisma/**/*"
+    ],
+    "scripts": [
+      "package.json"
+    ]
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.11.0",
+    "@panva/hkdf": "^1.0.4",
+    "@peculiar/webcrypto": "^1.4.3",
+    "@prisma/client": "4.13.0",
+    "axios": "^1.2.3",
+    "chalk": "^5.2.0",
+    "cron": "^2.2.0",
+    "dayjs": "^1.11.7",
+    "dotenv": "^16.0.3",
+    "form-data": "^4.0.0",
+    "formidable": "^3.5.1",
+    "hono": "^4.2.6",
+    "joi": "^17.9.1",
+    "jose": "^4.14.1",
+    "jsonwebtoken": "^9.0.0",
+    "jwt-decode": "^3.1.2",
+    "lodash": "^4.17.21",
+    "mitt": "^3.0.0",
+    "node-jsencrypt": "^1.0.0",
+    "qiniu": "^7.8.0",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/cron": "^2.0.0",
+    "@types/formidable": "^3.4.1",
+    "@types/jsonwebtoken": "^9.0.1",
+    "@types/lodash": "^4.14.191",
+    "@types/node": "18.11.18",
+    "@types/qs": "^6.9.7",
+    "@types/uuid": "^9.0.1",
+    "eslint": "8.32.0",
+    "eslint-config-next": "13.1.5",
+    "husky": "^8.0.3",
+    "prisma": "^4.14.0",
+    "prisma-online": "^0.2.1",
+    "resolve": "^1.22.8",
+    "tsx": "^4.7.2",
+    "typescript": "4.9.4",
+    "vite-node": "^0.28.3",
+    "vitest": "^0.28.2"
+  }
+}

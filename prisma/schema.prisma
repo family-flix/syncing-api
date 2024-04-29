@@ -1,0 +1,184 @@
+generator client {
+        provider      = "prisma-client-js"
+        binaryTargets = ["native"]
+}
+
+datasource db {
+        provider = "sqlite"
+        url      = env("DATABASE_PATH")
+}
+
+model pt_site {
+        id      Int      @id @default(autoincrement())
+        created DateTime @default(now())
+        updated DateTime @default(now())
+        name    String
+        url     String
+        token   String
+
+        user_id Int
+        user    user @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+        @@map("PTSite")
+}
+
+model torrent {
+        id                Int      @id @default(autoincrement())
+        created           DateTime @default(now())
+        updated           DateTime @default(now())
+        unique_id         String
+        name              String
+        url               String
+        filename          String
+        download_progress Int
+
+        user_id Int
+        user    user @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+        @@map("Torrent")
+}
+
+model task {
+        id           Int      @id @default(autoincrement())
+        created      DateTime @default(now())
+        updated      DateTime @default(now())
+        unique_id    String
+        type         Int      @default(1)
+        desc         String?
+        log_filepath String?
+        percent      Float    @default(0)
+        percent_text String?
+        status       Int      @default(1)
+        need_stop    Int      @default(0)
+        error        String?
+
+        user_id Int
+        user    user @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+        @@map("Task")
+}
+
+model log {
+        id      Int      @id @default(autoincrement())
+        created DateTime @default(now())
+        updated DateTime @default(now())
+        type    Int      @default(1)
+        desc    String?
+
+        user_id Int
+        user    user @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+        @@map("ActionLog")
+}
+
+model account {
+        id            Int     @id @default(autoincrement())
+        type          String
+        provider      String
+        provider_id   String
+        provider_arg1 String?
+        provider_arg2 String?
+        provider_arg3 String?
+        provider_arg4 String?
+        provider_arg5 String?
+
+        user_id Int
+        user    user @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+        @@unique([provider, provider_id])
+        @@map("Account")
+}
+
+model user {
+        id      Int      @id @default(autoincrement())
+        created DateTime @default(now())
+        updated DateTime @default(now())
+
+        settings String
+        nickname String?
+        avatar   String?
+
+        accounts account[]
+        torrents torrent[]
+        pt_sites pt_site[]
+        tasks    task[]
+        // 用户行为记录
+        logs     log[]
+        drives   drive[]
+        files    file[]
+
+        @@map("User")
+}
+
+model drive {
+        id      String   @id
+        created DateTime @default(now())
+        updated DateTime @default(now())
+
+        unique_id        String
+        type             Int?      @default(0)
+        name             String
+        remark           String?
+        avatar           String
+        // json
+        profile          String
+        // 总大小
+        total_size       Float?    @default(0)
+        // 已使用
+        used_size        Float?    @default(0)
+        // 是否禁用
+        invalid          Int?      @default(0)
+        hidden           Int?      @default(0)
+        sort             Int?      @default(0)
+        // 最近一次索引该云盘的时间（废弃）
+        latest_analysis  DateTime?
+        // 网盘用于存放影视剧的目录
+        root_folder_name String?
+        // 网盘用于存放影视剧的目录 file_id
+        root_folder_id   String?
+
+        drive_token_id String
+        drive_token    drive_token @relation(fields: [drive_token_id], references: [id], onDelete: Cascade)
+        user_id        Int
+        user           user        @relation(fields: [user_id], references: [id], onDelete: Cascade)
+        files          file[]
+
+        @@unique([user_id, unique_id])
+        @@map("Drive")
+}
+
+// 因为 refresh_token 需要经常更新所以单独拿出来作为表（这样合理吗？）
+model drive_token {
+        id      String   @id
+        created DateTime @default(now())
+        updated DateTime @default(now())
+
+        // json
+        data       String
+        expired_at Float
+
+        drives drive[]
+
+        @@map("DriveToken")
+}
+
+model file {
+        id      String   @id
+        created DateTime @default(now())
+        updated DateTime @default(now())
+
+        file_id        String
+        name           String
+        parent_file_id String
+        parent_paths   String
+        type           Int     @default(3)
+        size           Float   @default(0)
+        md5            String?
+
+        drive_id String
+        drive    drive  @relation(fields: [drive_id], references: [id], onDelete: Cascade)
+        user_id  Int
+        user     user   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+        @@map("File")
+}
