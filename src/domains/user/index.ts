@@ -13,7 +13,7 @@ const CredentialsSchema = Joi.object({
     .email({ tlds: { allow: false } })
     .message("邮箱错误")
     .required(),
-  password: Joi.string().pattern(new RegExp("^[a-zA-Z0-9]{8,30}$")).message("密码必须包含大写字母、数字").required(),
+  password: Joi.string().pattern(new RegExp("^[a-zA-Z0-9.]{8,30}$")).message("密码必须包含大写字母、数字").required(),
 });
 interface Credentials {
   email: string;
@@ -128,10 +128,12 @@ export class User {
     const { provider, store } = values;
     if (provider === AuthenticationProviders.Credential) {
       const { provider_id, provider_arg1 } = values;
+      console.log(provider_id, provider_arg1);
       const r = await resultify(CredentialsSchema.validateAsync.bind(CredentialsSchema))({
         email: provider_id,
         password: provider_arg1,
       });
+      console.log(r.error);
       if (r.error) {
         return Result.Err(r.error);
       }

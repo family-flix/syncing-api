@@ -1,5 +1,7 @@
 import { user, task, file, drive, drive_token, PrismaClient } from "@prisma/client";
 
+import { Result, Unpacked } from "@/types/index";
+
 export type AsyncTaskRecord = task;
 export type RecordCommonPart = {
   id: string;
@@ -69,4 +71,12 @@ export interface DataStore {
   //     update: PrismaClient["resource_sync_task"]["update"];
   //   };
   // };
+  list_with_cursor<F extends (extra: { take: number }) => any>(options: {
+    fetch: F;
+    next_marker: string;
+    page_size?: number;
+  }): Promise<{
+    next_marker: string | null;
+    list: Unpacked<ReturnType<F>>[number][];
+  }>;
 }

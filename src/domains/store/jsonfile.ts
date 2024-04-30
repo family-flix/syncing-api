@@ -69,6 +69,17 @@ export class JSONFileStore extends BaseDomain<TheTypesOfEvents> implements DataS
       this.emit(Events.StateChange, v);
     });
   }
+
+  async list_with_cursor<F extends (extra: { take: number }) => any>(options: {
+    fetch: F;
+    next_marker: string;
+    page_size?: number | undefined;
+  }) {
+    return {
+      next_marker: null,
+      list: [],
+    };
+  }
   find_drive(where: Partial<{ unique_id: string; id: string | number }>) {
     this.$memory.find_drive(where);
   }

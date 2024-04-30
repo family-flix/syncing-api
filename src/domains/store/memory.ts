@@ -10,7 +10,7 @@ import omit from "lodash/omit";
 import { BaseDomain, Handler } from "@/domains/base";
 import { FileType, MediaTypes } from "@/constants";
 import { update } from "@/utils";
-import { Result } from "@/types";
+import { Result, Unpacked } from "@/types";
 
 import {
   DataStore,
@@ -63,6 +63,16 @@ export class MemoryStore extends BaseDomain<TheTypesOfEvents> implements DataSto
 
     this.drives = drives;
     this.drive_tokens = drive_tokens;
+  }
+  async list_with_cursor<F extends (extra: { take: number }) => any>(options: {
+    fetch: F;
+    next_marker: string;
+    page_size?: number | undefined;
+  }) {
+    return {
+      next_marker: null,
+      list: [],
+    };
   }
   // @ts-ignore
   prisma: PrismaClient = {

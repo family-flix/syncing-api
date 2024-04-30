@@ -388,8 +388,9 @@ async function main() {
     });
   });
   server.post("/api/task/list", async (c) => {
+    const { store } = c.env;
     const { authorization } = await c.req.header();
-    const r = await User.New(authorization, c.env.store);
+    const r = await User.New(authorization, store);
     if (r.error) {
       return c.json({
         code: 900,
@@ -398,17 +399,195 @@ async function main() {
       });
     }
     const user = r.data;
-    const { page, page_size, keyword } = await c.req.json();
+    const { status, next_marker, page_size } = await c.req.json();
+    const where: { user_id: number; status?: number } = {
+      user_id: user.id,
+    };
+    if (status) {
+      where.status = status;
+    }
+    const count = await store.prisma.task.count({ where });
+    const result = await store.list_with_cursor({
+      fetch(extra) {
+        return store.prisma.task.findMany({
+          where,
+          orderBy: {
+            created: "desc",
+          },
+          ...extra,
+        });
+      },
+      next_marker,
+      page_size,
+    });
+    const data = {
+      total: count,
+      next_marker: result.next_marker,
+      list: result.list.map((item) => {
+        const { id, type, desc, status, error, created, updated } = item;
+        return {
+          id,
+          desc,
+          status,
+          type,
+          error,
+          created,
+          updated,
+        };
+      }),
+    };
     return c.json({
       code: 0,
-      msg: "success",
-      // tasks: tasks.map((t) => {
-      //   const { uid, unique_id } = t;
-      //   return {
-      //     uid,
-      //     unique_id,
-      //   };
-      // }),
+      msg: "",
+      data,
+    });
+  });
+  server.post("/api/task/status", async (c) => {
+    const { store } = c.env;
+    const { authorization } = await c.req.header();
+    const r = await User.New(authorization, store);
+    if (r.error) {
+      return c.json({
+        code: 900,
+        msg: r.error.message,
+        data: null,
+      });
+    }
+    const user = r.data;
+    const { id } = await c.req.json();
+    if (!id) {
+      return c.json({
+        code: 101,
+        msg: "缺少 id",
+        data: null,
+      });
+    }
+    const r2 = await Task.Get({ id, user_id: user.id, app: application, store });
+    if (r2.error) {
+      return c.json({
+        code: 101,
+        msg: r2.error.message,
+        data: null,
+      });
+    }
+    const task = r2.data;
+    const r3 = await task.fetch_profile(false);
+    if (r3.error) {
+      return c.json({
+        code: 101,
+        msg: r3.error.message,
+        data: null,
+      });
+    }
+    const { status, desc, percent, error, created, updated } = r3.data;
+    const data = {
+      status,
+      desc,
+      percent,
+      error,
+      created,
+      updated,
+    };
+    return c.json({
+      code: 0,
+      msg: "",
+      data,
+    });
+  });
+  server.post("/api/task/profile", async (c) => {
+    const { store } = c.env;
+    const { authorization } = await c.req.header();
+    const r = await User.New(authorization, store);
+    if (r.error) {
+      return c.json({
+        code: 900,
+        msg: r.error.message,
+        data: null,
+      });
+    }
+    const user = r.data;
+    const { id } = await c.req.json();
+    if (!id) {
+      return c.json({
+        code: 101,
+        msg: "缺少 id",
+        data: null,
+      });
+    }
+    const r2 = await Task.Get({ id, user_id: user.id, app: application, store });
+    if (r2.error) {
+      return c.json({
+        code: 101,
+        msg: r2.error.message,
+        data: null,
+      });
+    }
+    const task = r2.data;
+    const r3 = await task.fetch_profile();
+    if (r3.error) {
+      return c.json({
+        code: 101,
+        msg: r3.error.message,
+        data: null,
+      });
+    }
+    const { status, desc, percent, lines, error, created, updated } = r3.data;
+    const data = {
+      status,
+      desc,
+      percent,
+      lines,
+      error,
+      created,
+      updated,
+    };
+    return c.json({
+      code: 0,
+      msg: "",
+      data,
+    });
+  });
+  server.post("/api/task/pause", async (c) => {
+    const { store } = c.env;
+    const { authorization } = await c.req.header();
+    const r = await User.New(authorization, store);
+    if (r.error) {
+      return c.json({
+        code: 900,
+        msg: r.error.message,
+        data: null,
+      });
+    }
+    const user = r.data;
+    const { id } = await c.req.json();
+    if (!id) {
+      return c.json({
+        code: 101,
+        msg: "缺少 id",
+        data: null,
+      });
+    }
+    const r2 = await Task.Get({ id, user_id: user.id, app: application, store });
+    if (r2.error) {
+      return c.json({
+        code: 101,
+        msg: r2.error.message,
+        data: null,
+      });
+    }
+    const task = r2.data;
+    const r3 = await task.pause();
+    if (r3.error) {
+      return c.json({
+        code: 101,
+        msg: r3.error.message,
+        data: null,
+      });
+    }
+    return c.json({
+      code: 0,
+      msg: "",
+      data: null,
     });
   });
   server.post("/api/file/list", async (c) => {

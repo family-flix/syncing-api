@@ -82,6 +82,16 @@ export class FakeDatabaseStore extends BaseDomain<TheTypesOfEvents> implements D
       this.update_json_file();
     });
   }
+  async list_with_cursor<F extends (extra: { take: number }) => any>(options: {
+    fetch: F;
+    next_marker: string;
+    page_size?: number | undefined;
+  }) {
+    return {
+      next_marker: null,
+      list: [],
+    };
+  }
   // @ts-ignore
   prisma: PrismaClient = {
     //     user: {

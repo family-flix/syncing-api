@@ -42,6 +42,16 @@ export class APIStore extends BaseDomain<TheTypesOfEvents> implements DataStore 
     const { client } = props;
     this.client = client;
   }
+  async list_with_cursor<F extends (extra: { take: number }) => any>(options: {
+    fetch: F;
+    next_marker: string;
+    page_size?: number | undefined;
+  }) {
+    return {
+      next_marker: null,
+      list: [],
+    };
+  }
   // @ts-ignore
   prisma: PrismaClient = {
     // user: {

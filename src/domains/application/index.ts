@@ -40,7 +40,7 @@ export class Application<T extends { root_path: string; env?: Record<string, str
     // ensure(path.join(this.assets, "thumbnail"));
     // ensure(path.join(this.assets, "backdrop"));
     // ensure(path.join(this.assets, "subtitle"));
-    // ensure(path.join(root_path, "logs"));
+    ensure(path.join(root_path, "logs"));
     console.log("__new prisma client");
     this.store = new DatabaseStore(
       new PrismaClient({

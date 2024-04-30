@@ -28,7 +28,7 @@ type JobNewProps = {
   desc: string;
   user_id: UserUniqueID;
   store: DataStore;
-  app: Application;
+  app: Application<any>;
   on_print?: () => void;
 };
 type TaskProps = {
@@ -38,13 +38,13 @@ type TaskProps = {
     "unique_id" | "type" | "status" | "desc" | "log_filepath" | "error" | "created" | "updated" | "user_id"
   >;
   output: Article;
-  app: Application;
+  app: Application<any>;
   store: DataStore;
 };
 const cached_jobs: Record<string, Task> = {};
 
 export class Task extends BaseDomain<TheTypesOfEvents> {
-  static async Get(body: { id: number; user_id: UserUniqueID; app: Application; store: DataStore }) {
+  static async Get(body: { id: number; user_id: UserUniqueID; app: Application<any>; store: DataStore }) {
     const { id, user_id, app, store } = body;
     if (cached_jobs[id]) {
       return Result.Ok(cached_jobs[id]);
@@ -139,7 +139,7 @@ export class Task extends BaseDomain<TheTypesOfEvents> {
 
   output: Article;
   store: DataStore;
-  app: Application;
+  app: Application<any>;
 
   constructor(props: TaskProps) {
     super();
@@ -294,7 +294,7 @@ export class Task extends BaseDomain<TheTypesOfEvents> {
           status: TaskStatus.Finished,
         },
       });
-    }, 10 * 1000);
+    }, 3 * 1000);
     this.emit(Events.StopTask);
     if (this.profile.log_filepath) {
       const log_filepath = path.resolve(this.app.root_path, "logs", this.profile.log_filepath);
