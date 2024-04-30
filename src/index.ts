@@ -773,7 +773,7 @@ export async function wait_task_finish(values: {
   const { task_id, client, handler } = values;
   const fn = loop_request({
     fetch(value: { task_id: string }) {
-      return client.get<TaskStatusResp>(`/api/admin/job/status/${value.task_id}`);
+      return client.get<TaskStatusResp>("/api/v2/admin/task/status", { id: Number(value.task_id) });
     },
     async can_finish(r) {
       if (r.status === TaskStatus.Finished) {
