@@ -3,7 +3,7 @@ import path from "path";
 
 import { Hono } from "hono";
 import { serve } from "@hono/node-server";
-import { serveStatic } from "@hono/node-server/serve-static";
+// import { serveStatic } from "@hono/node-server/serve-static";
 import { config } from "dotenv";
 
 import { Application } from "@/domains/application/index";
@@ -24,6 +24,7 @@ import { Result, Unpacked } from "@/types/index";
 import { LocalFileDriveClient } from "./domains/clients/local";
 import { parse_argv } from "./utils/server";
 import { ApplicationState } from "./store/types";
+import { static_serve } from "./utils/middlewares/static";
 
 config();
 const ROOT_DIR = process.env.ROOT_DIR;
@@ -38,13 +39,30 @@ async function main() {
     env: process.env,
     args: parse_argv<{ port: number }>(process.argv.slice(2)),
   });
+  if (!application.env.WEBSITE_DIR) {
+    console.log("缺少环境变量 WEBSITE_DIR");
+    return;
+  }
   const server = new Hono<{ Bindings: { store: typeof application.store; user: User }; Variables: {} }>();
-
-  server.use(async (c, next) => {
-    console.log(`[${c.req.method}] ${c.req.url}`);
-    await next();
+  // server.use(async (c, next) => {
+  //   console.log(`[${c.req.method}] ${c.req.url}`);
+  //   await next();
+  // });
+  server.use(
+    "/assets/*",
+    static_serve({
+      root: application.env.WEBSITE_DIR,
+    })
+  );
+  server.use(
+    "/",
+    static_serve({
+      root: application.env.WEBSITE_DIR,
+    })
+  );
+  server.notFound((c) => {
+    return c.html(fs.readFileSync(path.join(application.env.WEBSITE_DIR, "index.html"), "utf-8"));
   });
-  server.use("/static/*", serveStatic({ root: path.resolve(__dirname, "./dist") }));
   server.use(async (c, next) => {
     c.env.store = application.store;
     await next();

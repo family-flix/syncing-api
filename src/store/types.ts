@@ -9,6 +9,7 @@ export type ApplicationState = {
     PORT: string;
     WEAPP_SECRET: string;
     WEAPP_ID: string;
+    WEBSITE_DIR: string;
     VOICE_RECOGNIZE_SECRET_ID: string;
     VOICE_RECOGNIZE_SECRET_KEY: string;
     SHORT_LINK_USERNAME: string;
