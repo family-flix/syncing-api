@@ -373,7 +373,10 @@ async function main() {
         task_id: task.id,
         client: site_client,
         handler: (tmp) => {
-          task.update_percent(tmp.percent);
+          if (tmp.error) {
+            return;
+          }
+          task.update_percent(tmp.data.percent);
         },
       });
       task.finish();
@@ -772,7 +775,7 @@ type TaskStatusResp = {
 export async function wait_task_finish(values: {
   task_id: number;
   client: HttpClientCore;
-  handler: (r: TaskStatusResp) => void;
+  handler: (r: Result<TaskStatusResp>) => void;
 }) {
   const { task_id, client, handler } = values;
   const fn = loop_request({
@@ -780,8 +783,13 @@ export async function wait_task_finish(values: {
       return client.get<TaskStatusResp>("/api/v2/admin/task/status", { id: Number(value.task_id) });
     },
     async can_finish(r) {
-      console.log("task status in media site", r.desc, r.percent, r.status);
-      if (r.status === TaskStatus.Finished) {
+      if (r.error) {
+        console.log("task status error", r.error);
+        return true;
+      }
+      const data = r.data;
+      console.log("task status in media site", data.desc, data.percent, data.status);
+      if (data.status === TaskStatus.Finished) {
         return true;
       }
       return false;

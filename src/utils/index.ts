@@ -380,6 +380,7 @@ export function loop_request<
     return new Promise((resolve) => {
       async function run() {
         const r = await request(...args);
+        await sleep(1000);
         if (handler) {
           handler(r);
         }
