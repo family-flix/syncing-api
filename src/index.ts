@@ -268,6 +268,7 @@ async function main() {
       user_id: user.id,
       app: application,
       store: c.env.store,
+      on_print(v) {},
     });
     if (r2.error) {
       return c.json({
@@ -325,6 +326,9 @@ async function main() {
         return;
       }
       const uploader = r1.data;
+      uploader.on_print((v) => {
+        task.output.write(v);
+      });
       const drive = uploader.drive;
       const drive_client = uploader.client;
       const target_folder_id = (() => {
@@ -776,6 +780,7 @@ export async function wait_task_finish(values: {
       return client.get<TaskStatusResp>("/api/v2/admin/task/status", { id: Number(value.task_id) });
     },
     async can_finish(r) {
+      console.log("task status in media site", r.desc, r.percent, r.status);
       if (r.status === TaskStatus.Finished) {
         return true;
       }

@@ -29,7 +29,7 @@ type JobNewProps = {
   user_id: UserUniqueID;
   store: DataStore;
   app: Application<any>;
-  on_print?: () => void;
+  on_print?: (node: ArticleLineNode) => void;
 };
 type TaskProps = {
   id: number;
@@ -177,7 +177,7 @@ export class Task extends BaseDomain<TheTypesOfEvents> {
   };
   update_content = throttle(this.update_content_force, 5000);
   update_percent = throttle(async (percent: number) => {
-    console.log("[DOMAIN]job/index - update_percent", `${(percent * 100).toFixed(2)}%`);
+    console.log("[DOMAIN]task/index - update_percent", `${(percent * 100).toFixed(2)}%`);
     await this.store.prisma.task.update({
       where: {
         id: this.id,
