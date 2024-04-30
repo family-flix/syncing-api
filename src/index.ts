@@ -138,6 +138,30 @@ async function main() {
       },
     });
   });
+  server.post("/api/user/login", async (c) => {
+    const { email, password: pwd } = await c.req.json();
+    const r = await User.Validate({
+      provider: AuthenticationProviders.Credential,
+      provider_id: email,
+      provider_arg1: pwd,
+      store: c.env.store,
+    });
+    if (r.error) {
+      return c.json({
+        code: 101,
+        msg: r.error.message,
+        data: null,
+      });
+    }
+    return c.json({
+      code: 0,
+      msg: "success",
+      data: {
+        nickname: r.data.nickname,
+        token: r.data.token,
+      },
+    });
+  });
   server.post("/api/user/update_settings", async (c) => {
     const { authorization } = await c.req.header();
     const r = await User.New(authorization, c.env.store);
@@ -780,7 +804,7 @@ export async function wait_task_finish(values: {
   const { task_id, client, handler } = values;
   const fn = loop_request({
     fetch(value: { task_id: string }) {
-      return client.post<TaskStatusResp>("/api/v2/admin/task/status", { id: Number(value.task_id) });
+      return client.post<TaskStatusResp>("/api/v2/admin/task/status", { id: value.task_id });
     },
     async can_finish(r) {
       if (r.error) {

@@ -122,7 +122,8 @@ export class MediaUpload extends BaseDomain<TheTypesOfEvents> {
     const result = await this.client.upload(filepath, {
       name: filename,
       parent_file_id,
-      on_progress(v) {
+      on_progress: (v) => {
+        this.emit(Events.Print, Article.build_line([v]));
         console.log(v);
       },
     });

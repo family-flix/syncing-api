@@ -3,76 +3,15 @@ import FormData from "form-data";
 import { request } from "@/domains/request/utils";
 
 export function search_media(params: { page_size: number; page: number; keyword: string }) {
-  return request.post<{
-    pageNumber: string;
-    pageSize: string;
-    total: string;
-    totalPages: string;
-    data: {
-      id: string;
-      createdDate: string;
-      lastModifiedDate: string;
-      name: string;
-      smallDescr: string;
-      imdb: string;
-      imdbRating: string;
-      douban: string;
-      doubanRating: string;
-      dmmCode: null;
-      author: null;
-      category: string;
-      source: string;
-      medium: string;
-      standard: string;
-      videoCodec: string;
-      audioCodec: string;
-      team: string;
-      processing: string;
-      numfiles: string;
-      size: string;
-      tags: string;
-      labels: string;
-      msUp: number;
-      anonymous: boolean;
-      infoHash: null;
-      status: {
-        id: string;
-        createdDate: string;
-        lastModifiedDate: string;
-        pickType: string;
-        toppingLevel: number;
-        toppingEndTime: string;
-        discount: string;
-        discountEndTime: string;
-        timesCompleted: string;
-        comments: string;
-        lastAction: string;
-        views: string;
-        hits: string;
-        support: number;
-        oppose: number;
-        status: string;
-        seeders: string;
-        leechers: string;
-        banned: boolean;
-        visible: boolean;
-      };
-      editedBy: null;
-      editDate: null;
-      collection: boolean;
-      inRss: boolean;
-      canVote: boolean;
-      imageList: string[];
-      resetBox: null;
-    }[];
-  }>("https://kp.m-team.cc/api/torrent/search", {
-    categories: [],
-    keyword: params.keyword,
-    mode: "normal",
-    pageNumber: params.page,
-    pageSize: params.page_size || 100,
-    standards: ["6"],
-    visible: 1,
+  const { keyword, page = 1 } = params;
+  return request.post<string>("https://kp.m-team.cc/api/torrent/search", {
+    incldead: "1",
+    spstate: "0",
+    inclbookmarked: "0",
+    search: keyword,
+    search_area: "0",
+    search_mode: "0",
+    page: String(page - 1),
   });
 }
 
