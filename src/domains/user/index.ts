@@ -71,7 +71,7 @@ export class User {
           id,
           nickname,
           subscription: null,
-          settings: (() => {
+          settings: ((): null | UserSettings => {
             if (settings === "") {
               return null;
             }
@@ -79,7 +79,12 @@ export class User {
             if (r2.error) {
               return null;
             }
-            return r2.data;
+            const { site, paths, tokens = {} } = r2.data;
+            return {
+              site,
+              paths,
+              tokens,
+            };
           })(),
           token,
           store,
@@ -105,7 +110,7 @@ export class User {
         id,
         nickname,
         subscription: null,
-        settings: (() => {
+        settings: ((): null | UserSettings => {
           if (settings === "") {
             return null;
           }
@@ -113,7 +118,12 @@ export class User {
           if (r2.error) {
             return null;
           }
-          return r2.data;
+          const { site, paths, tokens = {} } = r2.data;
+          return {
+            site,
+            paths,
+            tokens,
+          };
         })(),
         token: "",
         store,

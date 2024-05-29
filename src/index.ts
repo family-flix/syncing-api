@@ -162,6 +162,23 @@ async function main() {
       },
     });
   });
+  server.post("/api/user/fetch_settings", async (c) => {
+    const { authorization } = await c.req.header();
+    const r = await User.New(authorization, c.env.store);
+    if (r.error) {
+      return c.json({
+        code: 900,
+        msg: r.error.message,
+        data: null,
+      });
+    }
+    const user = r.data;
+    return c.json({
+      code: 0,
+      msg: "",
+      data: user.settings,
+    });
+  });
   server.post("/api/user/update_settings", async (c) => {
     const { authorization } = await c.req.header();
     const r = await User.New(authorization, c.env.store);
