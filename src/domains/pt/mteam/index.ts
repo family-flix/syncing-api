@@ -17,13 +17,12 @@ export class MTeamPTClient {
   $profile: RequestCoreV2<{ fetch: typeof fetch_torrent_detail; client: HttpClientCore }>;
   $download: RequestCoreV2<{ fetch: typeof fetch_torrent_download_link; client: HttpClientCore }>;
 
-  constructor() {
+  constructor(props: { token?: string }) {
     const _client = new HttpClientCore({
       hostname: "",
       headers: {
         "accept-language": "zh-CN,zh;q=0.9,en;q=0.8",
-        authorization:
-          "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJsaXRhbyIsInVpZCI6MzEwNTI5LCJqdGkiOiJjZDExNzQ5ZC01MDE1LTRjMzQtOWQ1YS0zMzhhMjFlZWE3OGEiLCJpc3MiOiJodHRwczovL2twLm0tdGVhbS5jYyIsImlhdCI6MTcxNDM1NTQ0MywiZXhwIjoxNzE2OTQ3NDQzfQ.ZLgt1Vg1gurDQjWXpYqE28qlcsyGdC4fhfIdZlAirhrV0WEGt8Yq_d6XsaPqsHyEtHqVNTUDJzSa54isGvzgCw",
+        authorization: props.token ?? "",
         origin: "https://kp.m-team.cc",
         priority: "u=1, i",
         referer: "https://kp.m-team.cc/",

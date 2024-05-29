@@ -173,7 +173,7 @@ async function main() {
       });
     }
     const user = r.data;
-    const { site, paths } = await c.req.json();
+    const { site, paths, tokens = {} } = await c.req.json();
     if (!site) {
       return c.json({
         code: 101,
@@ -188,7 +188,7 @@ async function main() {
         data: null,
       });
     }
-    const r2 = await user.update_settings({ site, paths });
+    const r2 = await user.update_settings({ site, paths, tokens });
     if (r2.error) {
       return c.json({
         code: 102,
@@ -664,7 +664,9 @@ async function main() {
       });
     }
     const user = r.data;
-    const mteam = new MTeamPTClient();
+    const mteam = new MTeamPTClient({
+      token: user.settings?.tokens.mteam,
+    });
     const { site, page, page_size, keyword } = await c.req.json();
     if (site === "mteam") {
       const r = await mteam.search({ page, page_size, keyword });
@@ -706,7 +708,9 @@ async function main() {
       });
     }
     const { paths } = user.settings;
-    const mteam = new MTeamPTClient();
+    const mteam = new MTeamPTClient({
+      token: user.settings?.tokens.mteam,
+    });
     const manage = new FileManage({ root: ROOT_DIR });
     const { site, id } = await c.req.json();
     if (!id) {

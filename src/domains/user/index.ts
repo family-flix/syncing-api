@@ -26,6 +26,10 @@ interface TokenData {
 type UserSettings = {
   site: { hostname: string; token: string };
   paths: { file: string; torrent: string };
+  tokens: Partial<{
+    mteam: string;
+    hdarea: string;
+  }>;
 };
 const JWT = HS256<TokenData>({
   key: "flex",
@@ -259,16 +263,22 @@ export class User {
   avatar: string | null = null;
   subscription: { name: string; expired_at: Date } | null = null;
   settings: {
+    /** 主站地址与 token */
     site: {
       hostname: string;
       token: string;
     };
+    /** 本地种子、视频文件夹路径 */
     paths: {
       /** 种子文件 */
       torrent: string;
       /** 下载好的文件 */
       file: string;
     };
+    tokens: Partial<{
+      mteam: string;
+      hdarea: string;
+    }>;
   } | null = null;
   /** JWT token */
   token: string;
