@@ -11,7 +11,7 @@ const config = {
         __dirname,
         "./domains/list-helper-hook"
       ),
-      "@": path.resolve(__dirname, "."),
+      "@": path.resolve(__dirname, "./src"),
     },
   },
 };

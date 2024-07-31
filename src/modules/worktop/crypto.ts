@@ -1,3 +1,5 @@
+import crypto from 'crypto';
+
 import { asUTF8, toHEX } from './buffer';
 import type { Algorithms, TypedArray } from './crypto.d';
 

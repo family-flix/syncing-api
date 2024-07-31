@@ -3,10 +3,10 @@ import Joi from "joi";
 import { HS256 } from "@/modules/worktop/jwt";
 import { DataStore } from "@/domains/store/types";
 import { Result, resultify } from "@/types/index";
+import { parseJSONStr } from "@/utils";
 
 import { AuthenticationProviders } from "./constants";
 import { compare, prepare } from "./utils";
-import { parseJSONStr } from "@/utils";
 
 const CredentialsSchema = Joi.object({
   email: Joi.string()
@@ -265,6 +265,53 @@ export class User {
       const e = err as Error;
       return Result.Err(e);
     }
+  }
+  /** 修改指定邮箱密码 */
+  static async ChangePassword(values: Partial<{ email: string; password: string }>, store: DataStore) {
+    const credentialsSchema = Joi.object({
+      email: Joi.string().email().message("邮箱格式错误").required(),
+      password: Joi.string()
+        .min(6)
+        .max(20)
+        .pattern(/^(?=.*[a-zA-Z])(?=.*[0-9!@#$%^&*(),.?":{}|<>])[a-zA-Z0-9!@#$%^&*(),.?":{}|<>]+$/)
+        .message("密码必须是6-20个字符，只能包含字母、数字和标点符号（除空格），并且至少包含两种类型的字符")
+        .required(),
+    });
+    const r = await resultify(credentialsSchema.validateAsync.bind(credentialsSchema))(values);
+    if (r.error) {
+      return Result.Err(r.error);
+    }
+    const { email, password: pw } = values as Credentials;
+    const existing_credential = await store.prisma.account.findFirst({
+      where: { provider: AuthenticationProviders.Credential, provider_id: email },
+    });
+    if (!existing_credential) {
+      return Result.Err("该邮箱未注册");
+    }
+    const { id: credential_id } = existing_credential;
+    const { password, salt } = await prepare(pw);
+    const update_res = await store.prisma.account.update({
+      where: {
+        id: credential_id,
+      },
+      data: {
+        provider_arg1: password,
+        provider_arg2: salt,
+      },
+      include: {
+        user: true,
+      },
+    });
+    const { user } = update_res;
+    const res = await User.Token({ id: user.id });
+    if (res.error) {
+      return Result.Err(res.error);
+    }
+    const token = res.data;
+    return Result.Ok({
+      id: user.id,
+      token,
+    });
   }
 
   /** 用户 id */
